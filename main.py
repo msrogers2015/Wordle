@@ -1,11 +1,6 @@
 #!/usr/bin/env python3
-'''https://stackoverflow.com/questions/7546050/switch-between-two-frames-in-tkinter#:~:text=One%20way%20to%20switch%20frames,use%20any%20generic%20Frame%20class.'''
-
-from asyncio import ALL_COMPLETED
-import webbrowser
+import webbrowser, random, time
 import data
-import random
-import time
 import tkinter as tk
 
 class Application(tk.Frame):
@@ -46,6 +41,7 @@ class Application(tk.Frame):
         for widgets in self.menu_frame.winfo_children():
             widgets.destroy()
         self.menu_frame.destroy()
+        # Setting up game frame for widgets
         self.game_frame = tk.Frame(self.master)
         self.game_frame.pack(expand=True, fill='both')
         # Game objects
@@ -64,13 +60,19 @@ class Application(tk.Frame):
             for col in range(5):
                 self.letter_label = tk.Label(self.game_frame)
                 Application.letter_grid[row].append(self.letter_label)
+        # Enabling enter key as an alternative for clicking the guess button
         self.master.bind('<Return>', self.check)
 
     def check(self, event=None):
         font = ('Arial',14)
+        # Assigning class variable to value from entry box
         Application.current_guess = self.guess_entry.get().lower()
+        # Ensuring word is 5 characters long
         if len(Application.current_guess) == 5 and Application.guess_count < 5:
+            # Clear entry widget for next guess attempt
             self.guess_entry.delete(0, 'end')
+            # If word is correctly guessed, display all gree boxes and alter player they they have won.
+            # Also display menu buttons so they can play again
             if Application.current_guess == self.wordle_word:
                 for index, item in enumerate(Application.letter_grid[Application.guess_count]):
                     item.place(x=(37+(index*65)), y=100+(Application.guess_count*75), width=50, height=50)
@@ -79,6 +81,8 @@ class Application(tk.Frame):
                 self.notifications.config(text='Congradulations, you won!', font=font)
                 self.menu_btn = tk.Button(self.game_frame, text='Menu', font=font, command=self.menu_from_game)
                 self.menu_btn.place(x=163, y=510, width=75, height=25)
+            # Check each letter, updaing the background to display either correct placement, correct letter
+            # but wrong placement or wrong letter altogether
             for index, item in enumerate(Application.letter_grid[Application.guess_count]):
                 item.place(x=(37+(index*65)), y=100+(Application.guess_count*75), width=50, height=50)
                 item.config(text=Application.current_guess[index].upper(), font=('Arial', 36))
@@ -89,32 +93,41 @@ class Application(tk.Frame):
                     item.config(bg='yellow')
                     continue
                 item.config(bg='red')
+            # Updating guess count to keep track of attempts for ending the game
             Application.guess_count += 1
+        # If the input is not 5 characters long, display a error message and allow user to try again.
+        # This won't count against their guesses
         elif len(Application.current_guess) != 5:
             self.notifications.config(text='Please only use 5 letter words', font=font)
+        # If this is the fifth guess, signal the end of the game. 
         if Application.guess_count == 5:
             self.notifications.config(text=f'Sorry, the word was {self.wordle_word}', font=font)
             
     def menu_from_game(self):
+        ''''Clear screen of game screen items and display the menu'''
         for widgets in self.game_frame.winfo_children():
             widgets.destroy()
         self.game_frame.destroy()
         self.menu()
     
     def menu_from_about(self):
+        '''Clear screen of about screen items and display the menu'''
         for widgets in self.about_frame.winfo_children():
             widgets.destroy()
         self.about_frame.destroy()
         self.menu()
 
     def close(self):
+        '''Close the application'''
         self.master.destroy()
 
     def about(self):
         font = ('Arial',14)
+        # Clearing screen of the menu items
         for widgets in self.menu_frame.winfo_children():
             widgets.destroy()
         self.menu_frame.destroy()
+        # Create a frame to hold the information for the about screen
         self.about_frame = tk.Frame(self.master)
         self.about_frame.pack(expand=True, fill='both')
         # Adding Widgets
@@ -134,11 +147,15 @@ class Application(tk.Frame):
             print(widget)
     
     def portfolio(self, url):
+    '''Opens a web browser and navigates to my portfolio'''
         webbrowser.open_new_tab(url)
 
 if __name__ == '__main__':
+    # Create application window, set the size and give it a name
     root = tk.Tk()
     root.geometry('400x550')
     root.title('WorldePy')
+    # Create an instance of Application class for all the logic
     app = Application(master=root)
+    # Loop through the code for displaying GUI
     app.mainloop()
