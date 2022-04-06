@@ -37,6 +37,7 @@ class Application(tk.Frame):
     
     def start_game(self):
         '''Creation, display and control of main game'''
+        self.wordle_word = random.choice(data.words).lower()
         # Clear screen
         for widgets in self.menu_frame.winfo_children():
             widgets.destroy()
